@@ -1,0 +1,3 @@
+assistant_project/.env
+assistant_project/.venv
+assistant_project/db/context.db

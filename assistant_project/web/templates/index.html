@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ассистент по промпт-инжинирингу</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: { 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca' },
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen">
+  <div class="max-w-4xl mx-auto px-4 py-8">
+    <header class="mb-8">
+      <h1 class="text-3xl font-bold bg-gradient-to-r from-indigo-400 to-violet-400 bg-clip-text text-transparent">
+        🎓 Мультимодальный ассистент
+      </h1>
+      <p class="text-slate-400 mt-2">Обучение промпт-инжинирингу · Text · RAG · Voice · Vision</p>
+    </header>
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div class="md:col-span-3 bg-slate-900 rounded-xl border border-slate-800 p-4 min-h-[420px] flex flex-col">
+        <div id="chat" class="flex-1 overflow-y-auto space-y-4 mb-4 pr-2"></div>
+        <div id="typing" class="hidden text-sm text-slate-500 mb-2">Ассистент печатает...</div>
+      </div>
+
+      <aside class="bg-slate-900 rounded-xl border border-slate-800 p-4 space-y-4">
+        <div>
+          <label class="text-xs uppercase text-slate-500">Режим</label>
+          <select id="mode" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2">
+            <option value="text">Text</option>
+            <option value="rag">RAG</option>
+            <option value="voice">Voice</option>
+            <option value="image">Image</option>
+          </select>
+        </div>
+        <div class="space-y-2">
+          <button onclick="sendCommand('/index')" class="w-full text-left px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-sm">📚 /index</button>
+          <button onclick="sendCommand('/stats')" class="w-full text-left px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-sm">📊 /stats</button>
+          <button onclick="sendCommand('/reset')" class="w-full text-left px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-sm">🔄 /reset</button>
+          <button onclick="sendCommand('/help')" class="w-full text-left px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-sm">❓ /help</button>
+        </div>
+        <label class="flex items-center gap-2 text-sm text-slate-400">
+          <input type="checkbox" id="tts" class="rounded" />
+          TTS-ответ (voice)
+        </label>
+        <p class="text-xs text-slate-600">Session: <span id="sessionId" class="font-mono"></span></p>
+      </aside>
+    </div>
+
+    <div class="bg-slate-900 rounded-xl border border-slate-800 p-4">
+      <div id="imagePanel" class="hidden mb-4">
+        <label class="block text-sm text-slate-400 mb-2">Изображение + промпт</label>
+        <input type="file" id="imageFile" accept="image/*" class="block w-full text-sm text-slate-400 mb-2" />
+        <input type="text" id="imagePrompt" placeholder="Что проанализировать на изображении?" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2" />
+        <button onclick="sendImage()" class="mt-2 px-4 py-2 bg-primary-600 hover:bg-primary-700 rounded-lg text-sm">Анализировать</button>
+      </div>
+
+      <div id="voicePanel" class="hidden mb-4">
+        <label class="block text-sm text-slate-400 mb-2">Голосовое сообщение</label>
+        <input type="file" id="voiceFile" accept="audio/*" class="block w-full text-sm text-slate-400 mb-2" />
+        <button onclick="sendVoice()" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 rounded-lg text-sm">Отправить аудио</button>
+      </div>
+
+      <div id="textPanel" class="flex gap-2">
+        <input type="text" id="messageInput" placeholder="Задайте вопрос о промпт-инжинирингу..."
+          class="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500"
+          onkeydown="if(event.key==='Enter') sendMessage()" />
+        <button onclick="sendMessage()" class="px-6 py-3 bg-primary-600 hover:bg-primary-700 rounded-lg font-medium">Отправить</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const sessionId = 'web-' + Math.random().toString(36).slice(2, 14);
+    document.getElementById('sessionId').textContent = sessionId;
+
+    const chat = document.getElementById('chat');
+    const modeSelect = document.getElementById('mode');
+    const typing = document.getElementById('typing');
+
+    modeSelect.addEventListener('change', updatePanels);
+
+    function updatePanels() {
+      const mode = modeSelect.value;
+      document.getElementById('textPanel').classList.toggle('hidden', mode === 'image');
+      document.getElementById('voicePanel').classList.toggle('hidden', mode !== 'voice');
+      document.getElementById('imagePanel').classList.toggle('hidden', mode !== 'image');
+    }
+    updatePanels();
+
+    function appendMessage(role, text, audioBase64) {
+      const div = document.createElement('div');
+      div.className = role === 'user'
+        ? 'ml-auto max-w-[85%] bg-primary-700/40 rounded-xl px-4 py-3 text-sm'
+        : 'mr-auto max-w-[85%] bg-slate-800 rounded-xl px-4 py-3 text-sm whitespace-pre-wrap';
+      div.textContent = text;
+      chat.appendChild(div);
+      if (audioBase64) {
+        const audio = document.createElement('audio');
+        audio.controls = true;
+        audio.className = 'mt-2 w-full';
+        audio.src = 'data:audio/mpeg;base64,' + audioBase64;
+        chat.appendChild(audio);
+      }
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    async function sendMessage() {
+      const input = document.getElementById('messageInput');
+      const text = input.value.trim();
+      if (!text) return;
+      input.value = '';
+      appendMessage('user', text);
+      typing.classList.remove('hidden');
+
+      const form = new FormData();
+      form.append('message', text);
+      form.append('session_id', sessionId);
+      form.append('mode', modeSelect.value);
+      form.append('reply_with_voice', document.getElementById('tts').checked);
+
+      try {
+        const res = await fetch('/api/chat', { method: 'POST', body: form });
+        const data = await res.json();
+        appendMessage('assistant', data.text, data.audio_base64);
+      } catch (e) {
+        appendMessage('assistant', 'Ошибка: ' + e.message);
+      } finally {
+        typing.classList.add('hidden');
+      }
+    }
+
+    async function sendCommand(cmd) {
+      appendMessage('user', cmd);
+      typing.classList.remove('hidden');
+      const form = new FormData();
+      form.append('command', cmd);
+      form.append('session_id', sessionId);
+      try {
+        const res = await fetch('/api/command', { method: 'POST', body: form });
+        const data = await res.json();
+        appendMessage('assistant', data.text);
+      } catch (e) {
+        appendMessage('assistant', 'Ошибка: ' + e.message);
+      } finally {
+        typing.classList.add('hidden');
+      }
+    }
+
+    async function sendVoice() {
+      const file = document.getElementById('voiceFile').files[0];
+      if (!file) return alert('Выберите аудиофайл');
+      appendMessage('user', '🎤 [Голосовое сообщение]');
+      typing.classList.remove('hidden');
+
+      const form = new FormData();
+      form.append('audio', file);
+      form.append('session_id', sessionId);
+      form.append('mode', 'voice');
+      form.append('reply_with_voice', document.getElementById('tts').checked);
+
+      try {
+        const res = await fetch('/api/voice', { method: 'POST', body: form });
+        const data = await res.json();
+        appendMessage('assistant', data.text, data.audio_base64);
+      } catch (e) {
+        appendMessage('assistant', 'Ошибка: ' + e.message);
+      } finally {
+        typing.classList.add('hidden');
+      }
+    }
+
+    async function sendImage() {
+      const file = document.getElementById('imageFile').files[0];
+      if (!file) return alert('Выберите изображение');
+      appendMessage('user', '📷 [Изображение] ' + (document.getElementById('imagePrompt').value || ''));
+      typing.classList.remove('hidden');
+
+      const form = new FormData();
+      form.append('image', file);
+      form.append('prompt', document.getElementById('imagePrompt').value);
+      form.append('session_id', sessionId);
+
+      try {
+        const res = await fetch('/api/image', { method: 'POST', body: form });
+        const data = await res.json();
+        appendMessage('assistant', data.text);
+      } catch (e) {
+        appendMessage('assistant', 'Ошибка: ' + e.message);
+      } finally {
+        typing.classList.add('hidden');
+      }
+    }
+  </script>
+</body>
+</html>
