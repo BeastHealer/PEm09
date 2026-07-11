@@ -1,0 +1,54 @@
+# Environment variables (never commit .env!)
+.env
+.env.local
+.env.*.local
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Data (runtime, not in repo)
+data/embeddings.db
+data/chroma_db/
+data/generated_images/
+data/uploads/
+data/documents/*
+!data/documents/.gitkeep
+!data/documents/README.md
+!data/documents/course.txt
+
+# Media temp files
+*.ogg
+*.wav
+*.mp3
+
+# Logs
+*.log
+bot.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Cursor
+terminals/

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ассистент по промпт-инжинирингу</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="app">
+        <aside class="sidebar">
+            <div class="brand">
+                <span class="brand-icon">✦</span>
+                <h1>PE Assistant</h1>
+            </div>
+            <p class="brand-subtitle">Курс промпт-инжиниринга</p>
+
+            <section class="panel">
+                <h2>Режим</h2>
+                <select id="mode-select" class="select">
+                    <option value="rag" {% if current_mode == 'rag' %}selected{% endif %}>База знаний (RAG)</option>
+                    <option value="text" {% if current_mode == 'text' %}selected{% endif %}>Текстовый диалог</option>
+                    <option value="voice" {% if current_mode == 'voice' %}selected{% endif %}>Голос (TTS)</option>
+                    <option value="vision" {% if current_mode == 'vision' %}selected{% endif %}>Анализ изображений</option>
+                </select>
+            </section>
+
+            <section class="panel">
+                <h2>Голос TTS</h2>
+                <select id="voice-select" class="select">
+                    <option value="alloy" {% if current_voice == 'alloy' %}selected{% endif %}>Alloy</option>
+                    <option value="echo" {% if current_voice == 'echo' %}selected{% endif %}>Echo</option>
+                    <option value="nova" {% if current_voice == 'nova' %}selected{% endif %}>Nova</option>
+                    <option value="fable" {% if current_voice == 'fable' %}selected{% endif %}>Fable</option>
+                    <option value="onyx" {% if current_voice == 'onyx' %}selected{% endif %}>Onyx</option>
+                    <option value="shimmer" {% if current_voice == 'shimmer' %}selected{% endif %}>Shimmer</option>
+                </select>
+            </section>
+
+            <section class="panel actions">
+                <button id="btn-reset" class="btn btn-ghost">Очистить историю</button>
+                <button id="btn-stats" class="btn btn-ghost">Статистика RAG</button>
+                <label class="btn btn-ghost upload-label">
+                    Добавить в базу знаний
+                    <input type="file" id="doc-input" accept=".pdf,.txt,.md,.docx" hidden>
+                </label>
+            </section>
+
+            <div class="sidebar-hint">
+                <p><strong>База знаний:</strong></p>
+                <p>FAQ.pdf · course.txt · RTFM.docx</p>
+                <p class="hint-small">Можно добавить PDF, TXT, MD или DOCX через кнопку выше.</p>
+                <p class="hint-small">Дублирующий интерфейс — Telegram-бот</p>
+            </div>
+        </aside>
+
+        <main class="chat">
+            <header class="chat-header">
+                <h2>Чат с ассистентом</h2>
+                <span id="status" class="status">Готов</span>
+            </header>
+
+            <div id="messages" class="messages">
+                <div class="message assistant">
+                    <div class="bubble">{{ welcome_message }}</div>
+                </div>
+            </div>
+
+            <div id="typing" class="typing hidden">
+                <span></span><span></span><span></span>
+            </div>
+
+            <footer class="composer">
+                <div class="composer-tools">
+                    <label class="tool-btn" title="Анализ скриншота">
+                        📷
+                        <input type="file" id="image-input" accept="image/*" hidden>
+                    </label>
+                    <button id="btn-record" class="tool-btn" title="Голосовое сообщение">🎤</button>
+                </div>
+                <textarea id="input" rows="1" placeholder="Спроси про домашнее задание или материалы курса…" autofocus></textarea>
+                <button id="btn-send" class="btn btn-primary">Отправить</button>
+            </footer>
+        </main>
+    </div>
+
+    <div id="modal" class="modal hidden">
+        <div class="modal-content">
+            <h3 id="modal-title">Заголовок</h3>
+            <p id="modal-body"></p>
+            <button id="modal-close" class="btn btn-primary">Закрыть</button>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
