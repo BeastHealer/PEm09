@@ -149,10 +149,10 @@ CI запускается автоматически через GitHub Actions.
 - Graceful degradation: веб работает даже если Telegram недоступен
 
 ### Что сделано
-- Разработал мультимодальный AI-ассистент (RAG + Whisper + Vision)
-- Интегрировал ProxyAPI, ChromaDB, LangChain
-- Реализовал веб-интерфейс и Telegram-бот с общей бизнес-логикой
-- Настроил Docker-деплой и CI/CD
+- Разработан мультимодальный AI-ассистент (RAG + Whisper + Vision)
+- Интегрирован ProxyAPI, ChromaDB, LangChain
+- Реализован веб-интерфейс и Telegram-бот с общей бизнес-логикой
+- Настроен Docker-деплой и CI/CD
 
 ### Демо
 - Live: `https://your-domain.ru` _(добавьте ссылку после деплоя)_
@@ -168,6 +168,6 @@ MIT — см. [LICENSE](LICENSE)
 
 ## Автор
 
-Ľudmila Maklákova — [GitHub](https://github.com/BeastHealer) | [Telegram](https://t.me/@BeastMaster77)
+Ľudmila Maklakova — [GitHub](https://github.com/BeastHealer) | [Telegram](https://t.me/@BeastMaster77)
 
 _Проект выполнен в рамках курса «Промпт-инжиниринг»._
