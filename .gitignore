@@ -19,6 +19,7 @@ dist/
 venv/
 env/
 ENV/
+.venv/
 
 # IDE
 .vscode/
@@ -52,3 +53,6 @@ Thumbs.db
 
 # Cursor
 terminals/
+
+# Legacy local folder (not published)
+assistant_project/
