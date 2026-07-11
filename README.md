@@ -148,7 +148,7 @@ CI запускается автоматически через GitHub Actions.
 - ProxyAPI для доступа к OpenAI из РФ без VPN
 - Graceful degradation: веб работает даже если Telegram недоступен
 
-### Что можно указать в резюме
+### Что сделано
 - Разработал мультимодальный AI-ассистент (RAG + Whisper + Vision)
 - Интегрировал ProxyAPI, ChromaDB, LangChain
 - Реализовал веб-интерфейс и Telegram-бот с общей бизнес-логикой
@@ -156,7 +156,7 @@ CI запускается автоматически через GitHub Actions.
 
 ### Демо
 - Live: `https://your-domain.ru` _(добавьте ссылку после деплоя)_
-- Repo: `https://github.com/YOUR_USERNAME/prompt-engineering-assistant`
+- Repo: `https://github.com/BeastHealer/prompt-engineering-assistant`
 
 ---
 
@@ -168,6 +168,6 @@ MIT — см. [LICENSE](LICENSE)
 
 ## Автор
 
-**Ваше Имя** — [GitHub](https://github.com/YOUR_USERNAME) | [Telegram](https://t.me/YOUR_USERNAME)
+Ľudmila Maklákova — [GitHub](https://github.com/BeastHealer) | [Telegram](https://t.me/@BeastMaster77)
 
 _Проект выполнен в рамках курса «Промпт-инжиниринг»._
